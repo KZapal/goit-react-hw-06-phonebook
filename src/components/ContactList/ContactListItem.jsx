@@ -1,12 +1,22 @@
 import { useDispatch } from 'react-redux';
 import css from './ContactList.module.css';
-import PropTypes from 'prop-types';
 import { deleteContact } from '../../redux/contactsSlice';
 
 const ContactListItem = ({ contact }) => {
   const dispatch = useDispatch();
 
-  const handleDelete = () => dispatch(deleteContact(contact.id));
+  const handleDelete = () => {
+    dispatch(deleteContact(contact.id));
+
+    const contactsFromLocalStorage = JSON.parse(
+      localStorage.getItem('contacts')
+    );
+    const updatedContacts = contactsFromLocalStorage.filter(
+      item => item.id !== contact.id
+    );
+
+    localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+  };
 
   return (
     <div className={css.itemIn}>
@@ -18,12 +28,6 @@ const ContactListItem = ({ contact }) => {
       </button>
     </div>
   );
-};
-
-ContactListItem.propTypes = {
-  name: PropTypes.string,
-  number: PropTypes.string,
-  onClick: PropTypes.func,
 };
 
 export default ContactListItem;

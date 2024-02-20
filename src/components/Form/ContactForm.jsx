@@ -1,43 +1,38 @@
-import React, { useEffect, useState } from 'react';
 import css from './ContactForm.module.css';
 // import PropTypes from 'prop-types';
-import { nanoid } from 'nanoid';
 import { useDispatch, useSelector } from 'react-redux';
 import { addContact } from '../../redux/contactsSlice';
 import { getContacts } from '../../redux/selectors';
+import { nanoid } from '@reduxjs/toolkit';
 
 const ContactForm = () => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
   const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
 
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const resetForm = () => {
-    setName('');
-    setNumber('');
-  };
-
-  const parseNumber = number => {
-    const groups = number.match(/(\d{1,3})/g);
-    const formattedString = groups.join('-');
-    return formattedString;
-  };
-
   const handleSubmit = event => {
     event.preventDefault();
-    let newContact = {
+
+    const form = event.target;
+    const name = form.elements.name.value;
+    const number = form.elements.number.value;
+    form.reset();
+
+    const newContact = {
       name: name,
-      number: parseNumber(number),
+      number: number,
       id: nanoid(),
     };
 
-    dispatch(addContact(newContact));
-    dispatch(getContacts);
-    resetForm();
+    if (contacts.contacts.find(contact => contact.name === name)) {
+      alert(`${name} is already in contacts`);
+    } else {
+      dispatch(addContact(newContact));
+
+      const localStorageContacts =
+        JSON.parse(localStorage.getItem('contacts')) || [];
+      localStorageContacts.push(newContact);
+      localStorage.setItem('contacts', JSON.stringify(localStorageContacts));
+    }
   };
 
   return (
@@ -46,8 +41,6 @@ const ContactForm = () => {
         className={css.formInput}
         type="text"
         name="name"
-        value={name}
-        onChange={e => setName(e.target.value)}
         placeholder="Name: full name"
         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
         required
@@ -56,8 +49,6 @@ const ContactForm = () => {
         className={css.formInput}
         type="number"
         name="number"
-        value={number}
-        onChange={e => setNumber(e.target.value)}
         placeholder="Phone number: seven digits"
         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
         required
