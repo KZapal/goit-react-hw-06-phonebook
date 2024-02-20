@@ -1,14 +1,21 @@
+import { useDispatch } from 'react-redux';
 import css from './Filter.module.css';
-import PropTypes from 'prop-types';
+import { setFilter } from '../../redux/filterSlice';
+// import PropTypes from 'prop-types';
 
-const Filter = ({ value, changeFilter }) => {
+const Filter = () => {
+  const dispatch = useDispatch();
+
+  const changeFilter = event => {
+    dispatch(setFilter(event.target.value.toLowerCase()));
+  };
+
   return (
     <div className={css.filter}>
       <input
         className={css.filterInput}
         type="text"
         name="filter"
-        value={value}
         onChange={changeFilter}
         placeholder="Find contacts by name"
       />
@@ -16,9 +23,9 @@ const Filter = ({ value, changeFilter }) => {
   );
 };
 
-Filter.propTypes = {
-  value: PropTypes.string,
-  changeFilter: PropTypes.func,
-};
+// Filter.propTypes = {
+//   value: PropTypes.string,
+//   changeFilter: PropTypes.func,
+// };
 
 export default Filter;
